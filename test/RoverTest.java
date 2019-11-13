@@ -1,7 +1,10 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -9,6 +12,24 @@ public class RoverTest {
 
   private Pluto pluto = new Pluto(5, 5);
   private Rover rover = new Rover(pluto);
+
+  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+  private final PrintStream originalOut = System.out;
+  private final PrintStream originalErr = System.err;
+
+  @Before
+  public void setUpStreams() {
+    System.setOut(new PrintStream(outContent));
+    System.setErr(new PrintStream(errContent));
+  }
+
+  @After
+  public void restoreStreams() {
+    System.setOut(originalOut);
+    System.setErr(originalErr);
+  }
+
 
   @Test
   public void plutoHasHeightAndWidthInitialisedTo() {
@@ -59,12 +80,12 @@ public class RoverTest {
   public void roverWrapsAroundGrid() {
     rover.executeCommand("FF");
     assertEquals(rover.getPosition(), new Coordinate(0, 2));
-    for(int i = 0; i < pluto.getHeight(); ++i) {
+    for (int i = 0; i < pluto.getHeight(); ++i) {
       rover.executeCommand("F");
     }
     assertEquals(rover.getPosition(), new Coordinate(0, 2));
     rover.executeCommand("R");
-    for(int j = 0; j < pluto.getWidth(); ++j) {
+    for (int j = 0; j < pluto.getWidth(); ++j) {
       rover.executeCommand("F");
     }
     assertEquals(rover.getPosition(), new Coordinate(0, 2));
@@ -73,24 +94,35 @@ public class RoverTest {
 
   @Test
   public void plutoIsInitialisedWithNoObstacles() {
-    for(int i = 0; i < pluto.getHeight(); ++i) {
-      for(int j = 0; j < pluto.getWidth(); ++j) {
-        assertEquals(pluto.getLocation(j,i), PlutoObstacles.EMPTY);
+    for (int i = 0; i < pluto.getHeight(); ++i) {
+      for (int j = 0; j < pluto.getWidth(); ++j) {
+        assertEquals(pluto.getLocation(j, i), PlutoObstacles.EMPTY);
       }
     }
   }
 
   @Test
   public void canAddObstaclesToPlutoInGridBounds() {
-    pluto.addObstacle(2,3, PlutoObstacles.ROCK);
-    assertEquals(pluto.getLocation(2,3),PlutoObstacles.ROCK);
+    pluto.addObstacle(2, 3, PlutoObstacles.ROCK);
+    assertEquals(pluto.getLocation(2, 3), PlutoObstacles.ROCK);
   }
 
-  @Test (expected = IllegalArgumentException.class)
-  public void cannotAddObstaclesToPlutoOutOfGridBounds() throws IllegalArgumentException{
-    pluto.addObstacle(8,3, PlutoObstacles.ROCK);
+  @Test(expected = IllegalArgumentException.class)
+  public void cannotAddObstaclesToPlutoOutOfGridBounds()
+      throws IllegalArgumentException {
+    pluto.addObstacle(8, 3, PlutoObstacles.ROCK);
     //this line should not be reached
     fail();
+  }
+
+  @Test
+  public void roverStopsCommandBeforeWhenObstacleIsDetected() {
+    pluto.addObstacle(2,3, PlutoObstacles.CREVASSE);
+    rover.executeCommand("RFFLFFF");
+    assertEquals(rover.getPosition(), new Coordinate(2,2));
+    assertEquals("Encountered CREVASSE cannot move NORTH from my position (2,"
+            + "2)\n",
+        outContent.toString());
   }
 
 

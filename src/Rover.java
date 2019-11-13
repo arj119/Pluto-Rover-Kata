@@ -40,19 +40,29 @@ public class Rover {
   private void move(int steps) {
     int plutoHeight = pluto.getHeight();
     int plutoWidth = pluto.getWidth();
-    switch(this.bearing) {
+    int newX = currentLocation.x;
+    int newY = currentLocation.y;
+    switch (this.bearing) {
       case NORTH:
-        currentLocation.y = (currentLocation.y + steps) % plutoHeight;
+        newY = (currentLocation.y + steps) % plutoHeight;
         break;
       case EAST:
-        currentLocation.x = (currentLocation.x + steps) % plutoWidth;
+        newX = (currentLocation.x + steps) % plutoWidth;
         break;
       case SOUTH:
-        currentLocation.y = (currentLocation.y - steps) % plutoHeight;
+        newY = (currentLocation.y - steps) % plutoHeight;
         break;
       case WEST:
-        currentLocation.x = (currentLocation.x - steps) % plutoWidth;
+        newX = (currentLocation.x - steps) % plutoWidth;
         break;
+    }
+
+    PlutoObstacles obstacle = pluto.getLocation(newX, newY);
+    if (obstacle != PlutoObstacles.EMPTY) {
+      obstacleEncountered(obstacle);
+    } else {
+      this.currentLocation.x = newX;
+      this.currentLocation.y = newY;
     }
   }
 
@@ -61,5 +71,10 @@ public class Rover {
     int bearingIndex = this.bearing.ordinal();
     int newIndex = (bearingIndex + direction + values.length) % values.length;
     this.bearing = values[newIndex];
+  }
+
+  private void obstacleEncountered(PlutoObstacles obstacle) {
+    System.out.println("Encountered " + obstacle + " cannot move " + bearing + " "
+        + "from my position " + currentLocation.toString());
   }
 }
