@@ -1,4 +1,6 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -66,7 +68,29 @@ public class RoverTest {
       rover.executeCommand("F");
     }
     assertEquals(rover.getPosition(), new Coordinate(0, 2));
+  }
 
+
+  @Test
+  public void plutoIsInitialisedWithNoObstacles() {
+    for(int i = 0; i < pluto.getHeight(); ++i) {
+      for(int j = 0; j < pluto.getWidth(); ++j) {
+        assertEquals(pluto.getLocation(j,i), PlutoObstacles.EMPTY);
+      }
+    }
+  }
+
+  @Test
+  public void canAddObstaclesToPlutoInGridBounds() {
+    pluto.addObstacle(2,3, PlutoObstacles.ROCK);
+    assertEquals(pluto.getLocation(2,3),PlutoObstacles.ROCK);
+  }
+
+  @Test (expected = IllegalArgumentException.class)
+  public void cannotAddObstaclesToPlutoOutOfGridBounds() throws IllegalArgumentException{
+    pluto.addObstacle(8,3, PlutoObstacles.ROCK);
+    //this line should not be reached
+    fail();
   }
 
 
