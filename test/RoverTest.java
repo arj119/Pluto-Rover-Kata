@@ -1,5 +1,4 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -10,13 +9,12 @@ import org.junit.Test;
 
 public class RoverTest {
 
-  private Pluto pluto = new Pluto(5, 5);
-  private Rover rover = new Rover(pluto);
-
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
   private final PrintStream originalErr = System.err;
+  private Pluto pluto = new Pluto(5, 5);
+  private Rover rover = new Rover(pluto);
 
   @Before
   public void setUpStreams() {
@@ -107,19 +105,21 @@ public class RoverTest {
     assertEquals(pluto.getLocation(2, 3), PlutoObstacles.ROCK);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void cannotAddObstaclesToPlutoOutOfGridBounds()
-      throws IllegalArgumentException {
+  @Test
+  public void canAddObstaclesToPlutoOutOfGridBounds() {
     pluto.addObstacle(8, 3, PlutoObstacles.ROCK);
-    //this line should not be reached
-    fail();
+    assertEquals(pluto.getLocation(8, 3), PlutoObstacles.ROCK);
+
+    pluto.addObstacle(8, -3, PlutoObstacles.CREVASSE);
+    assertEquals(pluto.getLocation(8, -3), PlutoObstacles.CREVASSE);
+
   }
 
   @Test
   public void roverStopsCommandBeforeWhenObstacleIsDetected() {
-    pluto.addObstacle(2,3, PlutoObstacles.CREVASSE);
+    pluto.addObstacle(2, 3, PlutoObstacles.CREVASSE);
     rover.executeCommand("RFFLFFF");
-    assertEquals(rover.getPosition(), new Coordinate(2,2));
+    assertEquals(rover.getPosition(), new Coordinate(2, 2));
     assertEquals("Encountered CREVASSE cannot move NORTH from my position (2,"
             + "2)\n",
         outContent.toString());

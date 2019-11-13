@@ -1,6 +1,9 @@
 import java.util.Arrays;
+import java.util.Random;
 
 public class Pluto {
+
+  private final Random generator = new Random();
 
   private PlutoObstacles[][] grid;
   private int height;
@@ -10,7 +13,7 @@ public class Pluto {
     this.grid = new PlutoObstacles[height][width];
     this.height = height;
     this.width = width;
-    for(PlutoObstacles[] row : grid) {
+    for (PlutoObstacles[] row : grid) {
       Arrays.fill(row, PlutoObstacles.EMPTY);
     }
   }
@@ -24,11 +27,8 @@ public class Pluto {
   }
 
   public void addObstacle(int x, int y, PlutoObstacles obstacles) {
-    if(inBounds(x,y)) {
-      this.grid[y][x] = obstacles;
-    } else {
-      throw new IllegalArgumentException("Cannot place obstacle out of bounds!");
-    }
+      this.grid[Math.abs((y + height) % height)][Math.abs((x + width) % width)] =
+          obstacles;
   }
 
   private boolean inBounds(int x, int y) {
@@ -36,6 +36,20 @@ public class Pluto {
   }
 
   public PlutoObstacles getLocation(int x, int y) {
-      return this.grid[y % height][x % height];
+    return this.grid[(y + height) % height][(x + height) % height];
+  }
+
+  public void randomObstacleAddition() {
+    int numObstacles = generator.nextInt(height * width);
+    for (int i = 0; i < numObstacles; ++i) {
+      int x = generator.nextInt(width - 1);
+      int y = generator.nextInt(height - 1);
+      addObstacle(x, y, getRandomObstacle());
+    }
+  }
+
+  private PlutoObstacles getRandomObstacle() {
+    PlutoObstacles[] values = PlutoObstacles.values();
+    return values[Math.abs(generator.nextInt()) % values.length];
   }
 }
