@@ -19,6 +19,7 @@ public class Rover {
   }
 
   public void executeCommand(String command) {
+    loop:
     for (char c : command.toCharArray()) {
       switch (c) {
         case 'F':
@@ -34,7 +35,10 @@ public class Rover {
           rotate90(1);
           break;
         default:
-          System.out.println("Invalid Command " + c);
+          System.out.println(
+              "Invalid Command " + c + ": current position " + currentLocation
+                  .toString() + " facing " + bearing);
+          break loop;
       }
     }
   }
@@ -76,7 +80,8 @@ public class Rover {
   }
 
   private void obstacleEncountered(PlutoObstacles obstacle) {
-    System.out.println("Encountered " + obstacle + " cannot move " + bearing + " "
-        + "from my position " + currentLocation.toString());
+    System.out
+        .println("Encountered " + obstacle + " cannot move " + bearing + " "
+            + "from my position " + currentLocation.toString());
   }
 }
