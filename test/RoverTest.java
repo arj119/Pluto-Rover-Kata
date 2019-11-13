@@ -43,6 +43,15 @@ public class RoverTest {
   }
 
   @Test
+  public void roverDoesNotExecuteInvalidCommands() {
+    pluto.addObstacle(2, 3, PlutoObstacles.CREVASSE);
+    rover.executeCommand("FFXF");
+    assertEquals(rover.getPosition(), new Coordinate(0, 3));
+    assertEquals("Invalid Command X\n",
+        outContent.toString());
+  }
+
+  @Test
   public void roverRotatesWellWithCommand() {
     rover.executeCommand("R");
     assertEquals(rover.getBearing(), Bearing.EAST);
